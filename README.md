@@ -1,7 +1,7 @@
 # Bitwise-Exercises
  - A Learning Project(Unfinished) to help me become better with bit manipulation
  - You can generate random numbers and see the binary and hex equivalent
- - You can rotate bits
+ - You can circular rotate bits
  - Display shows some bitwise information about the number
 # Used olcPixelGameEngine by Javidx9 for Graphics/Display
  - https://github.com/OneLoneCoder/olcPixelGameEngine
