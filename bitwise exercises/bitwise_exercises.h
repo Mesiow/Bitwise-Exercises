@@ -2,7 +2,7 @@
 #include "olcPixelGameEngine.h"
 #include <string>
 #include <iostream>
-#include "Button.h"
+#include "Bitmanipulation_buttons.h"
 
 /*
 
@@ -11,18 +11,18 @@ Write a C program to check Least Significant Bit (LSB) of a number is set or not
 Write a C program to check Most Significant Bit (MSB) of a number is set or not. //Complete
 Write a C program to get nth bit of a number. //Complete
 Write a C program to set nth bit of a number. //Complete
-Write a C program to clear nth bit of a number.
-Write a C program to toggle nth bit of a number.
+Write a C program to clear nth bit of a number. //Complete
+Write a C program to toggle nth bit of a number. //Complete
 Write a C program to get highest set bit of a number. //Complete
 Write a C program to get lowest set bit of a number. //Complete
 Write a C program to count trailing zeros in a binary number. //Complete
 Write a C program to count leading zeros in a binary number. //Complete
-Write a C program to flip bits of a binary number using bitwise operator.
-Write a C program to count total zeros and ones in a binary number.
+Write a C program to flip bits of a binary number using bitwise operator. //Complete
+Write a C program to count total zeros and ones in a binary number. //Complete
 Write a C program to rotate bits of a given number. //Complete
-Write a C program to convert decimal to binary number system using bitwise operator.
-Write a C program to swap two numbers using bitwise operator.
-Write a C program to check whether a number is even or odd using bitwise operator.
+Write a C program to convert decimal to binary number system using bitwise operator. //Complete
+Write a C program to swap two numbers using bitwise operator. //Complete
+Write a C program to check whether a number is even or odd using bitwise operator. //Complete
 
 
 */
@@ -33,29 +33,37 @@ class BitwiseExercises : public olc::PixelGameEngine
 {
 public:
 	BitwiseExercises()
+		:buttons_(this)
 	{
-		srand((0));
+		srand(time(NULL));
 		// Name your application
 		sAppName = "Bitwise Exercises";
 		input_ = "";
 	
+
+		int a = 62;
+		int b = 43;
+		std::cout << "a = " << a;
+		std::cout << "  b = " << b << std::endl;
+		std::cout << "Swapped" << std::endl;
+		swap(a, b);
+		std::cout << "a = " << a;
+		std::cout << "  b = " << b << std::endl;
+
+		int a = 94;
+		if (isOdd(a))
+			std::cout << a << " is odd" << std::endl;
+		else
+			std::cout << a << " is even" << std::endl;
+
 	}
 
 public:
 	// Called once at the start, so create things here
 	bool OnUserCreate() override
 	{
-		generateBtn_ = new Button(ScreenWidth() - 105, ScreenHeight() - 25, 55, 15);
-		generateBtn_->setString("Generate");
+		
 
-		notBtn_ = new Button(ScreenWidth() - 155, ScreenHeight() - 25, 45, 15);
-		notBtn_->setString("~NOT");
-
-		rotateRightBtn_ = new Button(ScreenWidth() - 245, ScreenHeight() - 25, 75, 15);
-		rotateRightBtn_->setString("Rotate Right");
-
-		rotateLeftBtn_ = new Button(ScreenWidth() - 245, ScreenHeight() - 45, 75, 15);
-		rotateLeftBtn_->setString("Rotate Left");
 		generatedNumber = generateNumber();
 
 		return true;
@@ -82,9 +90,7 @@ public:
 	}
 
 	bool OnUserDestroy() override {
-		delete generateBtn_;
-		delete notBtn_;
-		delete rotateRightBtn_;
+		
 
 		return true;
 	}
@@ -93,39 +99,52 @@ public:
 
 		olc::vi2d mousePos = GetMousePos();
 	
+	
 		if (GetMouse(0).bPressed) { //left mouse pressed
 			//bounding box of button
-			if(generateBtn_->isInBounds(mousePos.x, mousePos.y)){
+			//Generate btn
+			if(buttons_.generateBtn_->isInBounds(mousePos.x, mousePos.y)){
 				//change color when clicked
 				//generate new value 0 - 255
 				generatedNumber = generateNumber();
-				generateBtn_->setTextColor(olc::WHITE);
+				buttons_.generateBtn_->setTextColor(olc::WHITE);
 			}
 
-			if (notBtn_->isInBounds(mousePos.x, mousePos.y)) {
+			//~NOT btn
+			if (buttons_.notBtn_->isInBounds(mousePos.x, mousePos.y)) {
 				//flip bits of generated number
 				flipBits();
-				notBtn_->setTextColor(olc::WHITE);
+				buttons_.notBtn_->setTextColor(olc::WHITE);
 			}
 
-			if (rotateRightBtn_->isInBounds(mousePos.x, mousePos.y)) {
+			//Rotate btns
+			if (buttons_.rotateRightBtn_->isInBounds(mousePos.x, mousePos.y)) {
 				generatedNumber = rotateBitsRight(generatedNumber);
-				rotateRightBtn_->setTextColor(olc::WHITE);
+				buttons_.rotateRightBtn_->setTextColor(olc::WHITE);
 			}
 
-			if (rotateLeftBtn_->isInBounds(mousePos.x, mousePos.y)) {
+			if (buttons_.rotateLeftBtn_->isInBounds(mousePos.x, mousePos.y)) {
 				generatedNumber = rotateBitsLeft(generatedNumber);
-				rotateLeftBtn_->setTextColor(olc::WHITE);
+				buttons_.rotateLeftBtn_->setTextColor(olc::WHITE);
+			}
+
+			//Toggle btn
+			if (buttons_.toggleBtn_->isInBounds(mousePos.x, mousePos.y)) {
+				toggleNthBit(generatedNumber, 7); //hard coded value for now
+				buttons_.toggleBtn_->setTextColor(olc::WHITE);
+		   }
+
+			//Clear btn
+			if (buttons_.clearBtn_->isInBounds(mousePos.x, mousePos.y)) {
+				clearNthBit(generatedNumber, 6);
+				buttons_.clearBtn_->setTextColor(olc::WHITE);
 			}
 		
 			
 		}
 
 		if (GetMouse(0).bReleased) { //left mouse released
-			generateBtn_->setTextColor(olc::DARK_GREY); //change color back after releasing
-			notBtn_->setTextColor(olc::DARK_GREY);
-			rotateRightBtn_->setTextColor(olc::DARK_GREY);
-			rotateLeftBtn_->setTextColor(olc::DARK_GREY);
+			buttons_.resetColor();
 		}
 	}
 
@@ -143,10 +162,7 @@ public:
 	}
 	
 	void drawButtons() {
-		generateBtn_->draw(this); //pass in pointer to instance of this class for drawing
-		notBtn_->draw(this);
-		rotateRightBtn_->draw(this);
-		rotateLeftBtn_->draw(this);
+		buttons_.draw(this); //pass in pointer to instance of this class for drawing
 	}
 
 	void drawBitwiseOperations() { //Draw operations of generated number
@@ -187,6 +203,10 @@ public:
 
 		//Leading Zeros
 		DrawStringDecal(olc::vf2d(10, 165), "# of Leading Zeros: " + std::to_string(leadingZeros(generatedNumber)), olc::WHITE, olc::vf2d(0.8, 0.8));
+
+		//Total number of ones and zeros in binary number
+		DrawStringDecal(olc::vf2d(10, 180), "Total # of Zeros: " + std::to_string(totalZeros(generatedNumber)), olc::WHITE, olc::vf2d(0.8, 0.8));
+		DrawStringDecal(olc::vf2d(10, 195), "Total # of Ones: " + std::to_string(totalOnes(generatedNumber)), olc::WHITE, olc::vf2d(0.8, 0.8));
 	}
 
 
@@ -258,6 +278,14 @@ private:
 		value = (value | (1 << (n - 1)));
 	}
 
+	void toggleNthBit(int& value, int n) {
+		value = (value ^ (1 << (n - 1)));
+	}
+
+	void clearNthBit(int& value, int n) {
+		value = (value & ~(1 << (n - 1))); //clear bit at position n - 1
+	}
+
 	int highestSetBit(int number) { //returns bit position of highest set bit of the number
 		int order = -1;
 		for (int i = 0; i < 8; i++) { //loop over high nibble
@@ -319,12 +347,53 @@ private:
 		return count;
 	}
 
-private:
-	Button *generateBtn_; //generates new number
-	Button* notBtn_; //flips bits
-	Button* rotateRightBtn_; //rotates bits right by 1
-	Button* rotateLeftBtn_;
-	int generatedNumber = 0;
+	int totalZeros(int value) { //returns total amount of zeros in binary number
+		int count = 0;
+		for (int i = 0; i < 8; i++) {
+			if ((value & (1 << i)) == 0)
+				count++;
+		}
+		return count;
+	}
 
+	int totalOnes(int value) { //returns total amount of ones in binary number
+		int count = 0;
+		for (int i = 0; i < 8; i++) {
+			if (value & (1 << i))
+				count++;
+		}
+		return count;
+	}
+
+
+
+	void swap(int& v1, int &v2) { //swap two numbers using a bitwise AND and OR operator
+		int temp = v1; //hold v1
+
+		//assign v1 to v2 via bit operators
+		for (int i = 0; i < 8; i++) { //loop over first value and store the value bit by bit into temp1
+			int bit_v2 = (v2 & (1 << i));
+			v1 = (v1 | bit_v2);  //merge v1 to v2's value bit by bit
+			v1 &= v2; //mask out to get original value of v2
+		}
+
+		//assign v2 to v1 via bit operators
+		for (int i = 0; i < 8; i++) {
+			int bit_v1 = (temp & (1 << i)); //get v1's original bit value
+			v2 = (v2 | bit_v1); //merge v1 value to v2
+			v2 &= temp; //mask out to get original value of v1
+		}
+	}
+
+	//Least Significant Bit of an odd number is always set (1).
+	//To check whether a number is even or odd we need to figure out if LSB is set or not.
+	bool isOdd(int number) { //checks if number is odd using bitwise operators
+		return ((number & 0x1));
+	}
+
+private:
+	BitManipButtons buttons_;
+
+	int generatedNumber = 0;
 	std::string input_;
 };

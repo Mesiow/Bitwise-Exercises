@@ -145,6 +145,7 @@
     <ClCompile Include="olcPixelGameEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bitmanipulation_buttons.h" />
     <ClInclude Include="bitwise_exercises.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="olcPixelGameEngine.h" />
